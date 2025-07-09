@@ -12,6 +12,7 @@ type EnvConfiguration struct {
 	URL      string `env:"URL"`
 	Email    string `env:"EMAIL"`
 	Password string `env:"PASSWORD"`
+	Mobile   string `env:"MOBILE"`
 }
 
 func LoadEnvConfiguration() *EnvConfiguration {

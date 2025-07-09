@@ -245,10 +245,11 @@ func Test_eskizapi_DefaultApiService(t *testing.T) {
 	})
 
 	t.Run("Test DefaultApiService SendSms", func(t *testing.T) {
-
-		t.Skip("skip test") // remove to run test
-
-		resp, httpRes, err := apiClient.DefaultApi.SendSms(ctx).Execute()
+		resp, httpRes, err := apiClient.DefaultApi.
+			SendSms(ctx).
+			Message("This is test from Eskiz").
+			MobilePhone(env.Mobile).
+			Execute()
 
 		require.Nil(t, err)
 		require.NotNil(t, resp)
