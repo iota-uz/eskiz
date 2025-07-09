@@ -1,4 +1,3 @@
-.gitignore
 .travis.yml
 README.md
 api/openapi.yaml
@@ -23,6 +22,7 @@ docs/SendSmsBatchRequestMessagesInner.md
 docs/SendSmsBatchResponse.md
 docs/SendSmsResponse.md
 docs/SendTemplateResponse.md
+docs/SmsCallbackWebhook.md
 docs/SmsLogsResponse.md
 docs/SmsStatusData.md
 docs/SmsStatusPart.md
@@ -61,6 +61,7 @@ model_send_sms_batch_request_messages_inner.go
 model_send_sms_batch_response.go
 model_send_sms_response.go
 model_send_template_response.go
+model_sms_callback_webhook.go
 model_sms_logs_response.go
 model_sms_status_data.go
 model_sms_status_part.go

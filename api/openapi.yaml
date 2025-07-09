@@ -1692,6 +1692,56 @@ components:
           example: 0
           type: integer
       type: object
+    SmsCallbackWebhook:
+      description: Модель для обработки входящих webhook-уведомлений о статусе SMS
+        от Eskiz API
+      properties:
+        request_id:
+          description: "UUID запроса, возвращаемый при отправке SMS"
+          example: 59bf10a2-aba8-4694-8fd5-0be20102a580
+          type: string
+        message_id:
+          description: ID сообщения от SMS провайдера
+          example: "4385062"
+          type: string
+        user_sms_id:
+          description: Пользовательский идентификатор SMS
+          example: vash_ID_zdes
+          type: string
+        country:
+          description: Код страны получателя
+          example: UZ
+          type: string
+        phone_number:
+          description: Номер телефона получателя
+          example: "998991234567"
+          type: string
+        sms_count:
+          description: Количество SMS частей
+          example: "1"
+          type: string
+        status:
+          description: Статус доставки SMS
+          enum:
+          - NEW
+          - STORED
+          - ACCEPTED
+          - PARTDELIVERED
+          - DELIVERED
+          - REJECTED
+          - UNDELIV
+          - UNDELIVERABLE
+          - EXPIRED
+          - DELETED
+          - UNKNOWN
+          - ENROUTE
+          example: DELIVRD
+          type: string
+        status_date:
+          description: Дата и время получения статуса
+          example: 2021-04-02 00:39:36
+          type: string
+      type: object
     getTotalBySmsc_request:
       properties:
         month:

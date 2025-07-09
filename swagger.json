@@ -1850,6 +1850,53 @@
               "example": 0
             }
           }
+        },
+        "SmsCallbackWebhook": {
+          "type": "object",
+          "properties": {
+            "request_id": {
+              "type": "string",
+              "description": "UUID запроса, возвращаемый при отправке SMS",
+              "example": "59bf10a2-aba8-4694-8fd5-0be20102a580"
+            },
+            "message_id": {
+              "type": "string",
+              "description": "ID сообщения от SMS провайдера",
+              "example": "4385062"
+            },
+            "user_sms_id": {
+              "type": "string",
+              "description": "Пользовательский идентификатор SMS",
+              "example": "vash_ID_zdes"
+            },
+            "country": {
+              "type": "string",
+              "description": "Код страны получателя",
+              "example": "UZ"
+            },
+            "phone_number": {
+              "type": "string",
+              "description": "Номер телефона получателя",
+              "example": "998991234567"
+            },
+            "sms_count": {
+              "type": "string",
+              "description": "Количество SMS частей",
+              "example": "1"
+            },
+            "status": {
+              "type": "string",
+              "description": "Статус доставки SMS",
+              "example": "DELIVRD",
+              "enum": ["NEW", "STORED", "ACCEPTED", "PARTDELIVERED", "DELIVERED", "REJECTED", "UNDELIV", "UNDELIVERABLE", "EXPIRED", "DELETED", "UNKNOWN", "ENROUTE"]
+            },
+            "status_date": {
+              "type": "string",
+              "description": "Дата и время получения статуса",
+              "example": "2021-04-02 00:39:36"
+            }
+          },
+          "description": "Модель для обработки входящих webhook-уведомлений о статусе SMS от Eskiz API"
         }
       }
     }
