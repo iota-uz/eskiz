@@ -1,0 +1,1907 @@
+openapi: 3.0.0
+info:
+  contact:
+    email: danil@iota.uz
+    name: IOTA Team
+    url: https://www.iota.uz
+  description: "Отправляйте СМС по всему миру, в любом количестве!\n\nВ тестовом с\
+    татусе для отправки тестовых смс сообщений, Вы можете использовать только ниже\
+    указанные тексты:\n\n- Это тест от Eskiz\n    \n- Bu Eskiz dan test\n    \n- This\
+    \ is test from Eskiz"
+  title: СМС шлюз от Eskiz.uz
+  version: 1.0.0
+servers:
+- description: Official Eskiz API server
+  url: https://notify.eskiz.uz
+security:
+- bearerAuth: []
+tags:
+- description: |-
+    **Срок токена** - 30 дней
+
+    Если Вы новый пользователь, пройдите регистрацию по [https://eskiz.uz/sms](https://eskiz.uz/sms) и получите логин и пароль, если же у Вас есть свой логин и пароль, то используйте его
+  name: Авторизация
+- name: Шаблоны
+- description: "_**СТАТУС СООБЩЕНИЕЯ**_\n\n**NEW** - СМС в ожидании отправления оп\
+    ератору  \n**STORED** - Отправляется только через CALLBACK_URL и означает, что\
+    \ SMS уже записано в базу данных.  \n**ACCEPTED** - Минимум одна часть SMS пер\
+    едана сотовому оператору, но со стороны оператора не получен обратный статус SMS\
+    \ сообщения;  \n**PARTDELIVERED -** Минимум одна часть SMS доставлено;  \n**DELIVERED**\
+    \ - доставлено;  \n**REJECTED -** один из основных причин это то что номер нах\
+    одится в черном списке;\n\n_**СТАТУС КАЖДОЙ ЧАСТИ СООБЩЕНИЯ**_\n\n**NEW** - СМ\
+    С в ожидании отправления оператору  \n**ACCEPTED** - СМС передан сотовому опер\
+    атору, но со стороны оператора обратно не получено статус смс сообщений;  \n**DELIVRD**\
+    \ - доставлено;  \n**UNDELIV / UNDELIVERABLE** - недоставлено, обычно причиной\
+    \ может быть то что абонент блокируется со стороны оператора(недостаточно сред\
+    ст или долг);  \n**EXPIRED** - срок жизни смс истек(когда абонент в течение су\
+    тки не выходил на связь. У билайн если в теение часа);  \n**REJECTD** - один и\
+    з основных причин это то что номер находится в черном списке;  \n**DELETED** -\
+    \ ошибка при отправки запроса(например когда адрес отправителя указан неверно\
+    );  \n**UNKNOWN** - Неопределенный статус  \n**ENROUTE** - Неопределенный стат\
+    ус в процессе отправки"
+  name: Отправка
+- name: Отчеты
+paths:
+  /api/report/total-by-smsc:
+    post:
+      description: "**smsc_id** - ID компании\n\n| smsc_id | Компания |\n| --- | ---\
+        \ |\n| 1 | Mobiuz |\n| 2 | Beeline |\n| 3 | Ucell |\n| 4 | Humans |\n| 5 |\
+        \ Uzmobile GSM |\n| 6 | Uzmobile CDMA |\n| 7 | Perfectum |\n| 8 | Global |\n\
+        \n**ad_parts** - Количество рекламных СМС  \n**ad_spent** - Расходы на рек\
+        ламные СМС\n\n**parts** - Количество сервисных СМС  \n**spent** - Расходы\
+        \ на сервисные СМС"
+      operationId: getTotalBySmsc
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/getTotalBySmsc_request'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TotalBySmscResponse'
+          description: Total by SMSC retrieved successfully
+      summary: Итого по компаниям
+      tags:
+      - Отчеты
+  /api/auth/login:
+    post:
+      description: "Для авторизации используйте этот API, возвращает токен"
+      operationId: login
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/login_request'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+          description: Successful authentication
+      security: []
+      summary: Получить токен
+      tags:
+      - Авторизация
+  /api/auth/refresh:
+    patch:
+      description: Обновляет текущий токен
+      operationId: refreshToken
+      parameters: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshTokenResponse'
+          description: Token refreshed successfully
+      summary: Обновить токен
+      tags:
+      - Авторизация
+  /api/auth/user:
+    get:
+      description: Возвращает все данные о пользователе
+      operationId: getUserInfo
+      parameters: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfoResponse'
+          description: User information retrieved successfully
+      summary: Данные ползователья
+      tags:
+      - Авторизация
+  /api/logs/sms/{id}:
+    get:
+      description: Системные логи
+      operationId: getSmsLogs
+      parameters:
+      - description: ID СМС
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmsLogsResponse'
+          description: SMS logs retrieved successfully
+      summary: Системные логи
+      tags:
+      - Отчеты
+  /api/message/export:
+    post:
+      description: Экспортировать в формате CSV
+      operationId: exportMessages
+      parameters:
+      - description: '`all` или `delivered` или `rejected`'
+        explode: true
+        in: query
+        name: status
+        required: false
+        schema:
+          type: string
+        style: form
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/exportMessages_request'
+      responses:
+        "200":
+          content:
+            text/csv:
+              schema:
+                format: binary
+                type: string
+          description: CSV export successful
+      summary: Экспортировать в формате CSV
+      tags:
+      - Отчеты
+  /api/message/sms/get-dispatch-status:
+    post:
+      description: Получить статус рассылки
+      operationId: getDispatchStatus
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/getDispatchStatus_request'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DispatchStatusResponse'
+          description: Dispatch status retrieved successfully
+      summary: Статус рассылки
+      tags:
+      - Отправка
+  /api/message/sms/get-user-messages:
+    post:
+      description: "**id** - Идентификатор пользователя  \n**country_id** - Иденти\
+        фикатор страны, куда отправлено SMS (null - Узбекистан)  \n**smsc_id** - И\
+        дентификатор компании, отправившей SMS  \n**dispatch_id** - Идентификатор\
+        \ рассылки  \n**user_sms_id** - Идентификатор SMS, который отправил пользо\
+        ватель  \n**request_id** - Идентификатор запроса, по которому было отправл\
+        ено SMS  \n**price** - Цена за каждую часть SMS (полная стоимость SMS вычи\
+        сляется как price \\* parts_count)  \n**is_ad** - Рекламное SMS  \n**nick**\
+        \ - Никнейм  \n**to** - Номер телефона, на который отправлено SMS  \n**message**\
+        \ - Текст SMS  \n**encoding** - Способ кодирования SMS (0 - GSM 0338, 1 -\
+        \ ASCII, 8 - UCS2)  \n**parts_count** - Количество частей SMS (зависит от\
+        \ типа кодировки)  \n**parts**: - Информация о частях SMS\n\n- **\\[MSG_ID\\\
+        ]**: Идентификатор SMS, полученный от компании\n    \n    - **part_index**\
+        \ - Порядковый номер каждой части SMS\n        \n    - **accepted** - true\
+        \ или false\n        \n    - **accept_time** - Время отправки SMS\n      \
+        \  \n    - **accept_status** - Состояние SMS, полученной от компании (знач\
+        ение SubmitSMResp.CommandStatus)\n        \n    - **dlr_state** - Статус д\
+        оставленного SMS\n        \n    - **dlr_time** - Время доставки SMS\n    \
+        \    \n\n**status** - Общее состояние SMS  \n**smsc_data** - Изменение сос\
+        тояния для каждой части  \n**sent_at** - Время, когда система Eskiz.uz при\
+        няла SMS  \n**submit_sm_resp_at** - Время отправки последней части SMS ком\
+        пании  \n**delivery_sm_at** - Время доставки последней части SMS пользоват\
+        елю  \n**created_at** - Дата создания записи  \n**updated_at** - Дата посл\
+        еднего изменения записи"
+      operationId: getUserMessages
+      parameters:
+      - description: "[пустой] - все\n\"delivered\" - только частично и полностью\
+          \ доставленное\n\"rejected\" - только не доставленное "
+        explode: true
+        in: query
+        name: status
+        required: false
+        schema:
+          type: string
+        style: form
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/getUserMessages_request'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserMessagesResponse'
+          description: User messages retrieved successfully
+      summary: Детализация
+      tags:
+      - Отправка
+  /api/message/sms/get-user-messages-by-dispatch:
+    post:
+      description: Получить все отправленные СМС по ID рассылке
+      operationId: getUserMessagesByDispatch
+      parameters:
+      - description: "[пустой] - все\n\"delivered\" - только частично и полностью\
+          \ доставленное\n\"rejected\" - только не доставленное "
+        explode: true
+        in: query
+        name: status
+        required: false
+        schema:
+          type: string
+        style: form
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/getUserMessagesByDispatch_request'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserMessagesResponse'
+          description: User messages by dispatch retrieved successfully
+      summary: Получить СМС по рассылке
+      tags:
+      - Отправка
+  /api/message/sms/normalizer:
+    post:
+      description: |-
+        Этот API предоставляет информацию о наличии специальных символов в SMS-сообщении, а также о том, какими символами можно заменить специальные символы.
+
+        Используя этот API, вы можете отправлять свои SMS дешевле.
+      operationId: normalizeSms
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/normalizeSms_request'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NormalizeSmsResponse'
+          description: SMS normalization result
+      summary: Нормализации SMS
+      tags:
+      - Отправка
+  /api/message/sms/send:
+    post:
+      description: |-
+        Для того, чтобы использовать никнейм, вам нужно поменять поле «FROM» на свои.
+
+        **callback_url** - Это необязательное поле, которое используется для автоматического получения смс-статуса с сервера. Укажите URL-адрес обратного вызова, по которому вы будете получать данные POST в следующем формате:
+
+        **{"request_id": "UUID", "message_id": "4385062", "user_sms_id": "vash_ID_zdes", "country": "UZ", "phone_number": "998991234567", "sms_count": "1", "status" : "DELIVRD", "status_date": "2021-04-02 00:39:36"}**
+
+        `request_id` — это значение, возвращаемое в поле "id" в результате выполнения API запросов send, send-batch и send-global.
+      operationId: sendSms
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/sendSms_request'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendSmsResponse'
+          description: SMS sent successfully
+      summary: Отправить СМС
+      tags:
+      - Отправка
+  /api/message/sms/send-batch:
+    post:
+      description: Отправить СМС рассылка
+      operationId: sendSmsBatch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/sendSmsBatch_request'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendSmsBatchResponse'
+          description: SMS batch sent successfully
+      summary: Отправить СМС рассылка
+      tags:
+      - Отправка
+  /api/message/sms/send-global:
+    post:
+      description: "Используя этот API вы можете отправить СМС зарубежных стран ми\
+        ра.\n\n**callback_url** - Это необязательное поле, которое используется дл\
+        я автоматического получения смс-статуса с сервера. Укажите URL-адрес обрат\
+        ного вызова, по которому вы будете получать данные POST в следующем формат\
+        е: \n\n**{\"message_id\": \"4385062\", \"country\": \"US\", \"phone_number\"\
+        : \"1234567891011\", \"sms_count\": \"1\", \"status\" : \"DELIVRD\", \"status_date\"\
+        : \"2021-04-02 00:39:36\"}**"
+      operationId: sendSmsGlobal
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/sendSmsGlobal_request'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendSmsResponse'
+          description: Global SMS sent successfully
+      summary: Отправить Международный СМС
+      tags:
+      - Отправка
+  /api/message/sms/status_by_id/{id}:
+    get:
+      description: |-
+        Если :id INT - это ID SMS на платформе Eskiz
+
+        Если :id UUID - это id, полученный в результате вызова API send, send-batch и send-global, или столбец request_id в результатах остальных API.
+      operationId: getSmsStatusById
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmsStatusResponse'
+          description: SMS status retrieved successfully
+      summary: Получить статус по ID
+      tags:
+      - Отчеты
+  /api/nick/me:
+    get:
+      description: Получить список ник
+      operationId: getNicknames
+      parameters: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NicknamesResponse'
+          description: Nicknames retrieved successfully
+      summary: Получить список ник
+      tags:
+      - Отправка
+  /api/report/total-by-dispatch:
+    post:
+      description: Расходы по рассылке
+      operationId: getTotalByDispatch
+      parameters:
+      - description: "[пустой] - все\n\"delivered\" - только частично и полностью\
+          \ доставленное\n\"rejected\" - только не доставленное "
+        explode: true
+        in: query
+        name: status
+        required: false
+        schema:
+          type: string
+        style: form
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/getTotalByDispatch_request'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserTotalsResponse'
+          description: Total by dispatch retrieved successfully
+      summary: Расходы по рассылке
+      tags:
+      - Отчеты
+  /api/report/total-by-month:
+    get:
+      description: "**ad_parts** - Количество рекламных СМС  \n**ad_spent** - Расх\
+        оды на рекламные СМС\n\n**parts** - Количество сервисных СМС  \n**spent**\
+        \ - Расходы на сервисные СМС"
+      operationId: getTotalByMonth
+      parameters:
+      - description: Год
+        explode: true
+        in: query
+        name: year
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TotalByMonthResponse'
+          description: Total by month retrieved successfully
+      summary: Итого по месяцам
+      tags:
+      - Отчеты
+  /api/report/total-by-range:
+    post:
+      description: Расходы по датам
+      operationId: getTotalByRange
+      parameters:
+      - description: "[пустой] - все\n\"delivered\" - только частично и полностью\
+          \ доставленное\n\"rejected\" - только не доставленное "
+        explode: true
+        in: query
+        name: status
+        required: false
+        schema:
+          type: string
+        style: form
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/getTotalByRange_request'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserTotalsResponse'
+          description: Total by date range retrieved successfully
+      summary: Расходы по датам
+      tags:
+      - Отчеты
+  /api/user/get-limit:
+    get:
+      description: Получить баланс
+      operationId: getUserLimit
+      parameters: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserLimitResponse'
+          description: User balance retrieved successfully
+      summary: Получить баланс
+      tags:
+      - Отчеты
+  /api/user/template:
+    post:
+      description: Получить шаблон по ID
+      operationId: sendTemplate
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/sendTemplate_request'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendTemplateResponse'
+          description: Template sent successfully
+      summary: Отправить шаблон
+      tags:
+      - Шаблоны
+  /api/user/templates:
+    get:
+      description: "Получить все шаблоны\n\nstatus:  \nmoderation => На модерации\
+        \  \ninproccess => В процессе  \nservice => Сервисный  \nreklama => Реклам\
+        ный  \nrejected => Отказано"
+      operationId: getUserTemplates
+      parameters: []
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplatesListResponse'
+          description: Templates retrieved successfully
+      summary: Получить список шаблонов
+      tags:
+      - Шаблоны
+  /api/user/totals:
+    post:
+      description: Итого отправленных СМС
+      operationId: getUserTotals
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/getUserTotals_request'
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserTotalsResponse'
+          description: User totals retrieved successfully
+      summary: Итог отправленных СМС
+      tags:
+      - Отчеты
+components:
+  schemas:
+    LoginResponse:
+      example:
+        data:
+          token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTQ2NzY1NDEsImlhdCI6MTc1MjA4NDU0MSwicm9sZSI6InVzZXIiLCJzaWduIjoiM2JmYmFhY2NmODc3MDc4OTgzM2I3YTllZWEwMGVjY2MzYTUzMzUwNDI1MDk2MGU5OTQyNDY0YmFkYmQ2MDIwMyIsInN1YiI6IjExNjI1In0.1NotN0j4fw83TJRf-YkK0QtJ1tY0dnWbWM0O4nhHI_I
+        message: token_generated
+        token_type: bearer
+      properties:
+        message:
+          example: token_generated
+          type: string
+        data:
+          $ref: '#/components/schemas/LoginData'
+        token_type:
+          example: bearer
+          type: string
+      type: object
+    LoginData:
+      example:
+        token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTQ2NzY1NDEsImlhdCI6MTc1MjA4NDU0MSwicm9sZSI6InVzZXIiLCJzaWduIjoiM2JmYmFhY2NmODc3MDc4OTgzM2I3YTllZWEwMGVjY2MzYTUzMzUwNDI1MDk2MGU5OTQyNDY0YmFkYmQ2MDIwMyIsInN1YiI6IjExNjI1In0.1NotN0j4fw83TJRf-YkK0QtJ1tY0dnWbWM0O4nhHI_I
+      properties:
+        token:
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTQ2NzY1NDEsImlhdCI6MTc1MjA4NDU0MSwicm9sZSI6InVzZXIiLCJzaWduIjoiM2JmYmFhY2NmODc3MDc4OTgzM2I3YTllZWEwMGVjY2MzYTUzMzUwNDI1MDk2MGU5OTQyNDY0YmFkYmQ2MDIwMyIsInN1YiI6IjExNjI1In0.1NotN0j4fw83TJRf-YkK0QtJ1tY0dnWbWM0O4nhHI_I
+          type: string
+      type: object
+    RefreshTokenResponse:
+      example:
+        data:
+          token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTQ2NzY1NDEsImlhdCI6MTc1MjA4NDU0MSwicm9sZSI6InVzZXIiLCJzaWduIjoiM2JmYmFhY2NmODc3MDc4OTgzM2I3YTllZWEwMGVjY2MzYTUzMzUwNDI1MDk2MGU5OTQyNDY0YmFkYmQ2MDIwMyIsInN1YiI6IjExNjI1In0.1NotN0j4fw83TJRf-YkK0QtJ1tY0dnWbWM0O4nhHI_I
+        message: token_generated
+        token_type: bearer
+      properties:
+        message:
+          example: token_generated
+          type: string
+        data:
+          $ref: '#/components/schemas/LoginData'
+        token_type:
+          example: bearer
+          type: string
+      type: object
+    UserInfoResponse:
+      example:
+        data:
+          password: ""
+          role: user
+          updated_at: 2023-11-03T20:09:31.527361Z
+          balance: 0
+          is_vip: false
+          name: Name
+          created_at: 2020-10-14T18:27:03Z
+          id: 378
+          email: vash@email.uz
+          status: active
+        id: id
+        status: success
+      properties:
+        status:
+          example: success
+          type: string
+        data:
+          $ref: '#/components/schemas/UserInfo'
+        id:
+          nullable: true
+          type: string
+          example: null
+      type: object
+    UserInfo:
+      example:
+        password: ""
+        role: user
+        updated_at: 2023-11-03T20:09:31.527361Z
+        balance: 0
+        is_vip: false
+        name: Name
+        created_at: 2020-10-14T18:27:03Z
+        id: 378
+        email: vash@email.uz
+        status: active
+      properties:
+        id:
+          example: 378
+          type: integer
+        created_at:
+          example: 2020-10-14T18:27:03Z
+          format: date-time
+          type: string
+        updated_at:
+          example: 2023-11-03T20:09:31.527361Z
+          format: date-time
+          type: string
+        name:
+          example: Name
+          type: string
+        email:
+          example: vash@email.uz
+          type: string
+        password:
+          example: ""
+          type: string
+        role:
+          example: user
+          type: string
+        status:
+          example: active
+          type: string
+        is_vip:
+          example: false
+          type: boolean
+        balance:
+          example: 0
+          type: number
+      type: object
+    SendTemplateResponse:
+      example:
+        template: шаблон или текс сообщение
+      properties:
+        template:
+          example: шаблон или текс сообщение
+          type: string
+      type: object
+    TemplatesListResponse:
+      example:
+        result:
+        - template: ""
+          id: 1
+          original_text: Eskiz API test 2
+          status: moderation
+        - template: ""
+          id: 1
+          original_text: Eskiz API test 2
+          status: moderation
+        success: true
+      properties:
+        success:
+          example: true
+          type: boolean
+        result:
+          items:
+            $ref: '#/components/schemas/TemplateItem'
+          type: array
+      type: object
+    TemplateItem:
+      example:
+        template: ""
+        id: 1
+        original_text: Eskiz API test 2
+        status: moderation
+      properties:
+        id:
+          example: 1
+          type: integer
+        template:
+          example: ""
+          type: string
+        original_text:
+          example: Eskiz API test 2
+          type: string
+        status:
+          example: moderation
+          type: string
+      type: object
+    SendSmsResponse:
+      example:
+        id: 59bf10a2-aba8-4694-8fd5-0be20102a580
+        message: Waiting for SMS provider
+        status: waiting
+      properties:
+        id:
+          example: 59bf10a2-aba8-4694-8fd5-0be20102a580
+          type: string
+        message:
+          example: Waiting for SMS provider
+          type: string
+        status:
+          example: waiting
+          type: string
+      type: object
+    SendSmsBatchResponse:
+      example:
+        id: 03759b6d-c4db-449f-81c1-f625ab1bc1b4
+        message: Waiting for SMS provider
+        status:
+        - waiting
+        - waiting
+      properties:
+        id:
+          example: 03759b6d-c4db-449f-81c1-f625ab1bc1b4
+          type: string
+        message:
+          example: Waiting for SMS provider
+          type: string
+        status:
+          example:
+          - waiting
+          - waiting
+          items:
+            type: string
+          type: array
+      type: object
+    UserMessagesResponse:
+      example:
+        data:
+          per_page: 20
+          last_page: 1
+          next_page_url: next_page_url
+          prev_page_url: prev_page_url
+          result:
+          - parts_count: 1
+            delivery_sm_at: 2023-11-02T00:40:38.619241Z
+            is_ad: true
+            dispatch_id: 6
+            created_at: 2023-11-02T00:40:34.563038Z
+            message: Eskiz test
+            encoding: 1
+            nick: "4546"
+            sent_at: 2023-11-02T00:40:32Z
+            updated_at: 2023-11-02T00:40:40.566277Z
+            user_id: 378
+            connection_id: 1
+            price: 50
+            parts:
+              key:
+                delivery: 2023-11-02T00:40:38.619241+05:00
+                submit: 0
+                accept: 2023-11-02T00:40:34.606121+05:00
+                status: DELIVRD
+            user_sms_id: hiha124
+            id: 16
+            to: Номер телефона
+            smsc_data:
+              key:
+              - smsc_data
+              - smsc_data
+            request_id: 7fc5c514-aa30-4adc-9b80-2956d612fb4c
+            country_id: 0
+            smsc_id: 1
+            status: DELIVERED
+            submit_sm_resp_at: 2023-11-02T00:40:34.606121Z
+          - parts_count: 1
+            delivery_sm_at: 2023-11-02T00:40:38.619241Z
+            is_ad: true
+            dispatch_id: 6
+            created_at: 2023-11-02T00:40:34.563038Z
+            message: Eskiz test
+            encoding: 1
+            nick: "4546"
+            sent_at: 2023-11-02T00:40:32Z
+            updated_at: 2023-11-02T00:40:40.566277Z
+            user_id: 378
+            connection_id: 1
+            price: 50
+            parts:
+              key:
+                delivery: 2023-11-02T00:40:38.619241+05:00
+                submit: 0
+                accept: 2023-11-02T00:40:34.606121+05:00
+                status: DELIVRD
+            user_sms_id: hiha124
+            id: 16
+            to: Номер телефона
+            smsc_data:
+              key:
+              - smsc_data
+              - smsc_data
+            request_id: 7fc5c514-aa30-4adc-9b80-2956d612fb4c
+            country_id: 0
+            smsc_id: 1
+            status: DELIVERED
+            submit_sm_resp_at: 2023-11-02T00:40:34.606121Z
+          path: https://notify.eskiz.uz/api/message/sms/get-user-messages
+          first_page_url: https://notify.eskiz.uz/api/message/sms/get-user-messages?page=1
+          total: 4
+          last_page_url: https://notify.eskiz.uz/api/message/sms/get-user-messages?page=1
+          from: 1
+          links:
+          - active: false
+            label: '&laquo; Previous'
+            url: url
+          - active: false
+            label: '&laquo; Previous'
+            url: url
+          to: 20
+          current_page: 1
+        status: success
+      properties:
+        data:
+          $ref: '#/components/schemas/PaginationData'
+        status:
+          example: success
+          type: string
+      type: object
+    PaginationData:
+      example:
+        per_page: 20
+        last_page: 1
+        next_page_url: next_page_url
+        prev_page_url: prev_page_url
+        result:
+        - parts_count: 1
+          delivery_sm_at: 2023-11-02T00:40:38.619241Z
+          is_ad: true
+          dispatch_id: 6
+          created_at: 2023-11-02T00:40:34.563038Z
+          message: Eskiz test
+          encoding: 1
+          nick: "4546"
+          sent_at: 2023-11-02T00:40:32Z
+          updated_at: 2023-11-02T00:40:40.566277Z
+          user_id: 378
+          connection_id: 1
+          price: 50
+          parts:
+            key:
+              delivery: 2023-11-02T00:40:38.619241+05:00
+              submit: 0
+              accept: 2023-11-02T00:40:34.606121+05:00
+              status: DELIVRD
+          user_sms_id: hiha124
+          id: 16
+          to: Номер телефона
+          smsc_data:
+            key:
+            - smsc_data
+            - smsc_data
+          request_id: 7fc5c514-aa30-4adc-9b80-2956d612fb4c
+          country_id: 0
+          smsc_id: 1
+          status: DELIVERED
+          submit_sm_resp_at: 2023-11-02T00:40:34.606121Z
+        - parts_count: 1
+          delivery_sm_at: 2023-11-02T00:40:38.619241Z
+          is_ad: true
+          dispatch_id: 6
+          created_at: 2023-11-02T00:40:34.563038Z
+          message: Eskiz test
+          encoding: 1
+          nick: "4546"
+          sent_at: 2023-11-02T00:40:32Z
+          updated_at: 2023-11-02T00:40:40.566277Z
+          user_id: 378
+          connection_id: 1
+          price: 50
+          parts:
+            key:
+              delivery: 2023-11-02T00:40:38.619241+05:00
+              submit: 0
+              accept: 2023-11-02T00:40:34.606121+05:00
+              status: DELIVRD
+          user_sms_id: hiha124
+          id: 16
+          to: Номер телефона
+          smsc_data:
+            key:
+            - smsc_data
+            - smsc_data
+          request_id: 7fc5c514-aa30-4adc-9b80-2956d612fb4c
+          country_id: 0
+          smsc_id: 1
+          status: DELIVERED
+          submit_sm_resp_at: 2023-11-02T00:40:34.606121Z
+        path: https://notify.eskiz.uz/api/message/sms/get-user-messages
+        first_page_url: https://notify.eskiz.uz/api/message/sms/get-user-messages?page=1
+        total: 4
+        last_page_url: https://notify.eskiz.uz/api/message/sms/get-user-messages?page=1
+        from: 1
+        links:
+        - active: false
+          label: '&laquo; Previous'
+          url: url
+        - active: false
+          label: '&laquo; Previous'
+          url: url
+        to: 20
+        current_page: 1
+      properties:
+        current_page:
+          example: 1
+          type: integer
+        path:
+          example: https://notify.eskiz.uz/api/message/sms/get-user-messages
+          type: string
+        prev_page_url:
+          nullable: true
+          type: string
+          example: null
+        first_page_url:
+          example: https://notify.eskiz.uz/api/message/sms/get-user-messages?page=1
+          type: string
+        last_page_url:
+          example: https://notify.eskiz.uz/api/message/sms/get-user-messages?page=1
+          type: string
+        next_page_url:
+          nullable: true
+          type: string
+          example: null
+        per_page:
+          example: 20
+          type: integer
+        last_page:
+          example: 1
+          type: integer
+        from:
+          example: 1
+          type: integer
+        to:
+          example: 20
+          type: integer
+        total:
+          example: 4
+          type: integer
+        result:
+          items:
+            $ref: '#/components/schemas/MessageItem'
+          type: array
+        links:
+          items:
+            $ref: '#/components/schemas/LinkItem'
+          type: array
+      type: object
+    MessageItem:
+      example:
+        parts_count: 1
+        delivery_sm_at: 2023-11-02T00:40:38.619241Z
+        is_ad: true
+        dispatch_id: 6
+        created_at: 2023-11-02T00:40:34.563038Z
+        message: Eskiz test
+        encoding: 1
+        nick: "4546"
+        sent_at: 2023-11-02T00:40:32Z
+        updated_at: 2023-11-02T00:40:40.566277Z
+        user_id: 378
+        connection_id: 1
+        price: 50
+        parts:
+          key:
+            delivery: 2023-11-02T00:40:38.619241+05:00
+            submit: 0
+            accept: 2023-11-02T00:40:34.606121+05:00
+            status: DELIVRD
+        user_sms_id: hiha124
+        id: 16
+        to: Номер телефона
+        smsc_data:
+          key:
+          - smsc_data
+          - smsc_data
+        request_id: 7fc5c514-aa30-4adc-9b80-2956d612fb4c
+        country_id: 0
+        smsc_id: 1
+        status: DELIVERED
+        submit_sm_resp_at: 2023-11-02T00:40:34.606121Z
+      properties:
+        id:
+          example: 16
+          type: integer
+        user_id:
+          example: 378
+          type: integer
+        country_id:
+          nullable: true
+          type: integer
+          example: null
+        connection_id:
+          example: 1
+          type: integer
+        smsc_id:
+          example: 1
+          type: integer
+        dispatch_id:
+          nullable: true
+          type: integer
+          example: null
+        user_sms_id:
+          example: hiha124
+          type: string
+        request_id:
+          example: 7fc5c514-aa30-4adc-9b80-2956d612fb4c
+          type: string
+        price:
+          example: 50
+          type: number
+        is_ad:
+          example: true
+          type: boolean
+        nick:
+          example: "4546"
+          type: string
+        to:
+          example: Номер телефона
+          type: string
+        message:
+          example: Eskiz test
+          type: string
+        encoding:
+          example: 1
+          type: integer
+        parts_count:
+          example: 1
+          type: integer
+        parts:
+          additionalProperties:
+            $ref: '#/components/schemas/MessagePart'
+          type: object
+        status:
+          example: DELIVERED
+          type: string
+        smsc_data:
+          additionalProperties:
+            items:
+              type: string
+            type: array
+          type: object
+        sent_at:
+          example: 2023-11-02T00:40:32Z
+          format: date-time
+          type: string
+        submit_sm_resp_at:
+          example: 2023-11-02T00:40:34.606121Z
+          format: date-time
+          type: string
+        delivery_sm_at:
+          example: 2023-11-02T00:40:38.619241Z
+          format: date-time
+          type: string
+        created_at:
+          example: 2023-11-02T00:40:34.563038Z
+          format: date-time
+          type: string
+        updated_at:
+          example: 2023-11-02T00:40:40.566277Z
+          format: date-time
+          type: string
+      type: object
+    MessagePart:
+      example:
+        delivery: 2023-11-02T00:40:38.619241+05:00
+        submit: 0
+        accept: 2023-11-02T00:40:34.606121+05:00
+        status: DELIVRD
+      properties:
+        accept:
+          example: 2023-11-02T00:40:34.606121+05:00
+          format: date-time
+          type: string
+        status:
+          example: DELIVRD
+          type: string
+        submit:
+          example: 0
+          type: integer
+        delivery:
+          example: 2023-11-02T00:40:38.619241+05:00
+          format: date-time
+          type: string
+      type: object
+    LinkItem:
+      example:
+        active: false
+        label: '&laquo; Previous'
+        url: url
+      properties:
+        url:
+          nullable: true
+          type: string
+          example: null
+        label:
+          example: '&laquo; Previous'
+          type: string
+        active:
+          example: false
+          type: boolean
+      type: object
+    DispatchStatusResponse:
+      example:
+        data:
+        - total: 18
+          status: DELIVERED
+        - total: 18
+          status: DELIVERED
+        id: id
+        status: success
+      properties:
+        status:
+          example: success
+          type: string
+        data:
+          items:
+            $ref: '#/components/schemas/StatusCount'
+          type: array
+        id:
+          nullable: true
+          type: string
+          example: null
+      type: object
+    StatusCount:
+      example:
+        total: 18
+        status: DELIVERED
+      properties:
+        status:
+          example: DELIVERED
+          type: string
+        total:
+          example: 18
+          type: integer
+      type: object
+    NicknamesResponse:
+      example:
+      - Eskiz.uz
+      items:
+        type: string
+      type: array
+    NormalizeSmsResponse:
+      example:
+        special_characters:
+        - code: 0x20AC
+          char: €
+          position: 16
+        - code: 0x20AC
+          char: €
+          position: 16
+        message: "Sms xabar narxi EU100 : Xitoy tili Shi Jie  : Dza[?]om Eskiz : Privet\
+          \ Eskiz"
+        recommendations:
+        - from: €
+          to: EU
+        - from: €
+          to: EU
+      properties:
+        special_characters:
+          items:
+            $ref: '#/components/schemas/SpecialCharacter'
+          type: array
+        recommendations:
+          items:
+            $ref: '#/components/schemas/Recommendation'
+          type: array
+        message:
+          example: "Sms xabar narxi EU100 : Xitoy tili Shi Jie  : Dza[?]om Eskiz :\
+            \ Privet Eskiz"
+          type: string
+      type: object
+    SpecialCharacter:
+      example:
+        code: 0x20AC
+        char: €
+        position: 16
+      properties:
+        position:
+          example: 16
+          type: integer
+        code:
+          example: 0x20AC
+          type: string
+        char:
+          example: €
+          type: string
+      type: object
+    Recommendation:
+      example:
+        from: €
+        to: EU
+      properties:
+        from:
+          example: €
+          type: string
+        to:
+          example: EU
+          type: string
+      type: object
+    UserTotalsResponse:
+      example:
+        data:
+        - month: Nov
+          packets: 3
+          status: DELIVERED
+        - month: Nov
+          packets: 3
+          status: DELIVERED
+        id: id
+        status: success
+      properties:
+        status:
+          example: success
+          type: string
+        data:
+          items:
+            $ref: '#/components/schemas/UserTotalsItem'
+          type: array
+        id:
+          nullable: true
+          type: string
+          example: null
+      type: object
+    UserTotalsItem:
+      example:
+        month: Nov
+        packets: 3
+        status: DELIVERED
+      properties:
+        status:
+          example: DELIVERED
+          type: string
+        month:
+          example: Nov
+          type: string
+        packets:
+          example: 3
+          type: integer
+      type: object
+    UserLimitResponse:
+      example:
+        data:
+          balance: 0
+        status: success
+      properties:
+        data:
+          $ref: '#/components/schemas/UserBalance'
+        status:
+          example: success
+          type: string
+      type: object
+    UserBalance:
+      example:
+        balance: 0
+      properties:
+        balance:
+          example: 0
+          type: number
+      type: object
+    TotalByMonthResponse:
+      example:
+        data:
+        - total_spent: 24204
+          ad_parts: 14
+          month: 2
+          ad_spent: 1610
+          year: 2024
+          spent: 22594
+          total_parts: 423
+          parts: 409
+        - total_spent: 24204
+          ad_parts: 14
+          month: 2
+          ad_spent: 1610
+          year: 2024
+          spent: 22594
+          total_parts: 423
+          parts: 409
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/MonthlyReportItem'
+          type: array
+      type: object
+    MonthlyReportItem:
+      example:
+        total_spent: 24204
+        ad_parts: 14
+        month: 2
+        ad_spent: 1610
+        year: 2024
+        spent: 22594
+        total_parts: 423
+        parts: 409
+      properties:
+        year:
+          example: 2024
+          type: integer
+        month:
+          example: 2
+          type: integer
+        ad_parts:
+          example: 14
+          type: integer
+        ad_spent:
+          example: 1610
+          type: number
+        parts:
+          example: 409
+          type: integer
+        spent:
+          example: 22594
+          type: number
+        total_parts:
+          example: 423
+          type: integer
+        total_spent:
+          example: 24204
+          type: number
+      type: object
+    TotalBySmscResponse:
+      example:
+        data:
+        - total_spent: 450
+          ad_parts: 0
+          month: 1
+          ad_spent: 0
+          year: 2024
+          spent: 450
+          total_parts: 9
+          parts: 9
+          smsc_id: 1
+        - total_spent: 450
+          ad_parts: 0
+          month: 1
+          ad_spent: 0
+          year: 2024
+          spent: 450
+          total_parts: 9
+          parts: 9
+          smsc_id: 1
+      properties:
+        data:
+          items:
+            $ref: '#/components/schemas/SmscReportItem'
+          type: array
+      type: object
+    SmscReportItem:
+      example:
+        total_spent: 450
+        ad_parts: 0
+        month: 1
+        ad_spent: 0
+        year: 2024
+        spent: 450
+        total_parts: 9
+        parts: 9
+        smsc_id: 1
+      properties:
+        year:
+          example: 2024
+          type: integer
+        month:
+          example: 1
+          type: integer
+        ad_parts:
+          example: 0
+          type: integer
+        ad_spent:
+          example: 0
+          type: number
+        parts:
+          example: 9
+          type: integer
+        spent:
+          example: 450
+          type: number
+        total_parts:
+          example: 9
+          type: integer
+        total_spent:
+          example: 450
+          type: number
+        smsc_id:
+          example: 1
+          type: integer
+      type: object
+    SmsLogsResponse:
+      example:
+        messages_count: 22
+        messages:
+        - level_name: WARN
+          full_message: ""
+          ip: 127.0.0.1
+          dispatch_id: <nil>
+          user_sms_id: test-sms-1
+          from: "4546"
+          to: 99899*******
+          message: CallbackURL bo'sh
+          timestamp: 2024-02-27T11:30:28.066Z
+        - level_name: WARN
+          full_message: ""
+          ip: 127.0.0.1
+          dispatch_id: <nil>
+          user_sms_id: test-sms-1
+          from: "4546"
+          to: 99899*******
+          message: CallbackURL bo'sh
+          timestamp: 2024-02-27T11:30:28.066Z
+      properties:
+        messages:
+          items:
+            $ref: '#/components/schemas/LogMessage'
+          type: array
+        messages_count:
+          example: 22
+          type: integer
+      type: object
+    LogMessage:
+      example:
+        level_name: WARN
+        full_message: ""
+        ip: 127.0.0.1
+        dispatch_id: <nil>
+        user_sms_id: test-sms-1
+        from: "4546"
+        to: 99899*******
+        message: CallbackURL bo'sh
+        timestamp: 2024-02-27T11:30:28.066Z
+      properties:
+        ip:
+          example: 127.0.0.1
+          type: string
+        from:
+          example: "4546"
+          type: string
+        to:
+          example: 99899*******
+          type: string
+        dispatch_id:
+          example: <nil>
+          type: string
+        user_sms_id:
+          example: test-sms-1
+          type: string
+        timestamp:
+          example: 2024-02-27T11:30:28.066Z
+          format: date-time
+          type: string
+        message:
+          example: CallbackURL bo'sh
+          type: string
+        full_message:
+          example: ""
+          type: string
+        level_name:
+          example: WARN
+          type: string
+      type: object
+    SmsStatusResponse:
+      example:
+        data:
+          total_price: 0
+          parts_count: 1
+          delivery_sm_at: 2024-05-31T22:02:32Z
+          is_ad: false
+          dispatch_id: dispatch_id
+          created_at: 2024-05-31T22:02:27.954Z
+          message: Test
+          encoding: 1
+          nick: from
+          sent_at: 2024-05-31T22:02:27Z
+          updated_at: 2024-05-31T22:02:33.065096Z
+          user_id: 0
+          connection_id: 8
+          price: 0
+          parts:
+            key:
+              accept_status: 0
+              dlr_time: 2024-05-31T22:02:32+05:00
+              accepted: true
+              part_index: 0
+              dlr_state: DELIVRD
+              accept_time: 2024-05-31T22:02:28.672497042+05:00
+              group: 457
+          user_sms_id: user_sms_id
+          id: 61359094
+          to: to
+          smsc_data:
+            key:
+            - smsc_data
+            - smsc_data
+          request_id: b169553b-de29-4649-b5dd-cfafd85984f9
+          country_id: 83
+          smsc_id: 8
+          status: DELIVERED
+          submit_sm_resp_at: 2024-05-31T22:02:28.672497Z
+        id: id
+        status: success
+      properties:
+        status:
+          example: success
+          type: string
+        data:
+          $ref: '#/components/schemas/SmsStatusData'
+        id:
+          nullable: true
+          type: string
+          example: null
+      type: object
+    SmsStatusData:
+      example:
+        total_price: 0
+        parts_count: 1
+        delivery_sm_at: 2024-05-31T22:02:32Z
+        is_ad: false
+        dispatch_id: dispatch_id
+        created_at: 2024-05-31T22:02:27.954Z
+        message: Test
+        encoding: 1
+        nick: from
+        sent_at: 2024-05-31T22:02:27Z
+        updated_at: 2024-05-31T22:02:33.065096Z
+        user_id: 0
+        connection_id: 8
+        price: 0
+        parts:
+          key:
+            accept_status: 0
+            dlr_time: 2024-05-31T22:02:32+05:00
+            accepted: true
+            part_index: 0
+            dlr_state: DELIVRD
+            accept_time: 2024-05-31T22:02:28.672497042+05:00
+            group: 457
+        user_sms_id: user_sms_id
+        id: 61359094
+        to: to
+        smsc_data:
+          key:
+          - smsc_data
+          - smsc_data
+        request_id: b169553b-de29-4649-b5dd-cfafd85984f9
+        country_id: 83
+        smsc_id: 8
+        status: DELIVERED
+        submit_sm_resp_at: 2024-05-31T22:02:28.672497Z
+      properties:
+        id:
+          example: 61359094
+          type: integer
+        user_id:
+          example: 0
+          type: integer
+        country_id:
+          example: 83
+          type: integer
+        connection_id:
+          example: 8
+          type: integer
+        smsc_id:
+          example: 8
+          type: integer
+        dispatch_id:
+          nullable: true
+          type: string
+          example: null
+        user_sms_id:
+          nullable: true
+          type: string
+          example: null
+        request_id:
+          example: b169553b-de29-4649-b5dd-cfafd85984f9
+          type: string
+        price:
+          example: 0
+          type: number
+        total_price:
+          example: 0
+          type: number
+        is_ad:
+          example: false
+          type: boolean
+        nick:
+          example: from
+          type: string
+        to:
+          example: to
+          type: string
+        message:
+          example: Test
+          type: string
+        encoding:
+          example: 1
+          type: integer
+        parts_count:
+          example: 1
+          type: integer
+        parts:
+          additionalProperties:
+            $ref: '#/components/schemas/SmsStatusPart'
+          type: object
+        status:
+          example: DELIVERED
+          type: string
+        smsc_data:
+          additionalProperties:
+            items:
+              type: string
+            type: array
+          type: object
+        sent_at:
+          example: 2024-05-31T22:02:27Z
+          format: date-time
+          type: string
+        submit_sm_resp_at:
+          example: 2024-05-31T22:02:28.672497Z
+          format: date-time
+          type: string
+        delivery_sm_at:
+          example: 2024-05-31T22:02:32Z
+          format: date-time
+          type: string
+        created_at:
+          example: 2024-05-31T22:02:27.954Z
+          format: date-time
+          type: string
+        updated_at:
+          example: 2024-05-31T22:02:33.065096Z
+          format: date-time
+          type: string
+      type: object
+    SmsStatusPart:
+      example:
+        accept_status: 0
+        dlr_time: 2024-05-31T22:02:32+05:00
+        accepted: true
+        part_index: 0
+        dlr_state: DELIVRD
+        accept_time: 2024-05-31T22:02:28.672497042+05:00
+        group: 457
+      properties:
+        group:
+          example: 457
+          type: integer
+        accepted:
+          example: true
+          type: boolean
+        dlr_time:
+          example: 2024-05-31T22:02:32+05:00
+          format: date-time
+          type: string
+        dlr_state:
+          example: DELIVRD
+          type: string
+        part_index:
+          example: 0
+          type: integer
+        accept_time:
+          example: 2024-05-31T22:02:28.672497042+05:00
+          format: date-time
+          type: string
+        accept_status:
+          example: 0
+          type: integer
+      type: object
+    getTotalBySmsc_request:
+      properties:
+        month:
+          description: Месяц
+          type: string
+        year:
+          description: Год
+          type: string
+      type: object
+    login_request:
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      type: object
+    exportMessages_request:
+      properties:
+        end:
+          description: YYYY-MM-DD HH:mm:ss
+          type: string
+        month:
+          description: Месяц
+          type: string
+        start:
+          description: YYYY-MM-DD HH:mm:ss
+          type: string
+        year:
+          description: Год
+          type: string
+      type: object
+    getDispatchStatus_request:
+      properties:
+        dispatch_id:
+          description: ID рассылки
+          type: string
+        user_id:
+          description: ID пользователя
+          type: string
+      type: object
+    getUserMessages_request:
+      properties:
+        count:
+          description: 1 - Если необходимо получить итог по статусу
+          type: string
+        is_ad:
+          description: |-
+            [пустой] - все
+            1 - только рекламное
+            0 - только сервисное
+          type: string
+        page_size:
+          description: Количество SMS сообщений (с 20 до 200)
+          type: string
+        start_date:
+          description: С `%Y-%m-%d %H:%M`
+          type: string
+        to_date:
+          description: По `%Y-%m-%d %H:%M`
+          type: string
+      type: object
+    getUserMessagesByDispatch_request:
+      properties:
+        count:
+          description: 1 - Если необходимо получить итог по статусу
+          type: string
+        dispatch_id:
+          description: ID рассылки
+          type: string
+        is_ad:
+          description: |-
+            [пустой] - все
+            1 - только рекламное
+            0 - только сервисное
+          type: string
+      type: object
+    normalizeSms_request:
+      properties:
+        message:
+          description: Сообщение
+          type: string
+      type: object
+    sendSms_request:
+      properties:
+        callback_url:
+          description: "Это необязательное поле, которое используется для автомати\
+            ческого\nполучения смс-статуса с сервера. Укажите URL-адрес обратного\
+            \ вызова, по\nкоторому вы будете получать данные POST в следующем форм\
+            ате:\n`{\"request_id\": \"UUID\", \"message_id\": \"4385062\", \"user_sms_id\"\
+            : \"vash_ID_zdes\", \"country\": \"UZ\", \"phone_number\": \"998991234567\"\
+            , \"sms_count\": \"1\", \"status\" : \"DELIVRD\", \"status_date\": \"\
+            2021-04-02 00:39:36\"}`. \n\nrequest_id — это значение, возвращаемое в\
+            \ поле \"id\" в результате выполнения API запросов send, send-batch и\
+            \ send-global."
+          type: string
+        from:
+          description: "Для того, чтобы использовать никнейм, вам нужно поменять 4546\
+            \ на свои."
+          type: string
+        message:
+          description: Сообщение
+          type: string
+        mobile_phone:
+          description: Номер телефона
+          type: string
+      type: object
+    sendSmsBatch_request_messages_inner:
+      properties:
+        text:
+          example: eto test
+          type: string
+        to:
+          example: 998990000000
+          type: number
+        user_sms_id:
+          example: sms1
+          type: string
+      type: object
+    sendSmsBatch_request:
+      properties:
+        callback_url:
+          example: ""
+          type: string
+        dispatch_id:
+          example: 123
+          type: number
+        from:
+          example: "4546"
+          type: string
+        messages:
+          example:
+          - text: eto test
+            to: 998990000000
+            user_sms_id: sms1
+          - text: eto test 2
+            to: 998980000000
+            user_sms_id: sms2
+          items:
+            $ref: '#/components/schemas/sendSmsBatch_request_messages_inner'
+          type: array
+      type: object
+    sendSmsGlobal_request:
+      properties:
+        callback_url:
+          description: |-
+            Это необязательное поле, которое используется для автоматического
+            получения смс-статуса с сервера. Укажите URL-адрес обратного вызова, по
+            которому вы будете получать данные POST в следующем формате:
+            `{"request_id": "UUID", "message_id": "4385062", "user_sms_id": "vash_ID_zdes", "country": "UZ", "phone_number": "998991234567", "sms_count": "1", "status" : "DELIVRD", "status_date": "2021-04-02 00:39:36"}`
+
+            request_id — это значение, возвращаемое в поле "id" в результате выполнения API запросов send, send-batch и send-global.
+          type: string
+        country_code:
+          description: Страна
+          type: string
+        message:
+          description: Сообщение
+          type: string
+        mobile_phone:
+          description: Номер телефона
+          type: string
+        unicode:
+          description: 1 - если хотите отправить на кирилице
+          type: string
+      type: object
+    getTotalByDispatch_request:
+      properties:
+        dispatch_id:
+          description: ID рассылки
+          type: string
+        is_ad:
+          description: |-
+            [пустой] - все
+            1 - только рекламное
+            0 - только сервисное
+          type: string
+      type: object
+    getTotalByRange_request:
+      properties:
+        is_ad:
+          description: |-
+            [пустой] - все
+            1 - только рекламное
+            0 - только сервисное
+          type: string
+        start_date:
+          description: С `%Y-%m-%d %H:%M`
+          type: string
+        to_date:
+          description: По `%Y-%m-%d %H:%M`
+          type: string
+      type: object
+    sendTemplate_request:
+      properties:
+        template:
+          description: шаблон или текс сообщение
+          type: string
+      type: object
+    getUserTotals_request:
+      properties:
+        is_global:
+          type: string
+        month:
+          type: string
+        year:
+          type: string
+      type: object
+  securitySchemes:
+    bearerAuth:
+      bearerFormat: JWT
+      description: Bearer токен для авторизации
+      scheme: bearer
+      type: http

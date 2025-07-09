@@ -1,0 +1,1856 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "contact": {
+        "name": "IOTA Team",
+        "email": "danil@iota.uz",
+        "url": "https://www.iota.uz"
+      },
+      "description": "Отправляйте СМС по всему миру, в любом количестве!\n\nВ тестовом статусе для отправки тестовых смс сообщений, Вы можете использовать только нижеуказанные тексты:\n\n- Это тест от Eskiz\n    \n- Bu Eskiz dan test\n    \n- This is test from Eskiz",
+      "title": "СМС шлюз от Eskiz.uz",
+      "version": "1.0.0"
+    },
+    "servers": [
+      {
+        "url": "https://notify.eskiz.uz",
+        "description": "Official Eskiz API server"
+      }
+    ],
+    "security": [
+      {
+        "bearerAuth": []
+      }
+    ],
+    "paths": {
+      "/api/report/total-by-smsc": {
+        "post": {
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "month": {
+                      "type": "string",
+                      "description": "Месяц"
+                    },
+                    "year": {
+                      "type": "string",
+                      "description": "Год"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Total by SMSC retrieved successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/TotalBySmscResponse"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Отчеты"
+          ],
+          "description": "**smsc_id** - ID компании\n\n| smsc_id | Компания |\n| --- | --- |\n| 1 | Mobiuz |\n| 2 | Beeline |\n| 3 | Ucell |\n| 4 | Humans |\n| 5 | Uzmobile GSM |\n| 6 | Uzmobile CDMA |\n| 7 | Perfectum |\n| 8 | Global |\n\n**ad_parts** - Количество рекламных СМС  \n**ad_spent** - Расходы на рекламные СМС\n\n**parts** - Количество сервисных СМС  \n**spent** - Расходы на сервисные СМС",
+          "operationId": "getTotalBySmsc",
+          "summary": "Итого по компаниям"
+        }
+      },
+      "/api/auth/login": {
+        "post": {
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string"
+                    },
+                    "password": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful authentication",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/LoginResponse"
+                  }
+                }
+              }
+            }
+          },
+          "security": [],
+          "tags": [
+            "Авторизация"
+          ],
+          "description": "Для авторизации используйте этот API, возвращает токен",
+          "operationId": "login",
+          "summary": "Получить токен"
+        }
+      },
+      "/api/auth/refresh": {
+        "patch": {
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "Token refreshed successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/RefreshTokenResponse"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Авторизация"
+          ],
+          "description": "Обновляет текущий токен",
+          "operationId": "refreshToken",
+          "summary": "Обновить токен"
+        }
+      },
+      "/api/auth/user": {
+        "get": {
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "User information retrieved successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UserInfoResponse"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Авторизация"
+          ],
+          "description": "Возвращает все данные о пользователе",
+          "operationId": "getUserInfo",
+          "summary": "Данные ползователья"
+        }
+      },
+      "/api/logs/sms/{id}": {
+        "parameters": [
+          {
+            "description": "ID СМС",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "get": {
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "SMS logs retrieved successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SmsLogsResponse"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Отчеты"
+          ],
+          "description": "Системные логи",
+          "operationId": "getSmsLogs",
+          "summary": "Системные логи"
+        }
+      },
+      "/api/message/export": {
+        "post": {
+          "parameters": [
+            {
+              "description": "`all` или `delivered` или `rejected`",
+              "in": "query",
+              "name": "status",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "end": {
+                      "type": "string",
+                      "description": "YYYY-MM-DD HH:mm:ss"
+                    },
+                    "month": {
+                      "type": "string",
+                      "description": "Месяц"
+                    },
+                    "start": {
+                      "type": "string",
+                      "description": "YYYY-MM-DD HH:mm:ss"
+                    },
+                    "year": {
+                      "type": "string",
+                      "description": "Год"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "CSV export successful",
+              "content": {
+                "text/csv": {
+                  "schema": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Отчеты"
+          ],
+          "description": "Экспортировать в формате CSV",
+          "operationId": "exportMessages",
+          "summary": "Экспортировать в формате CSV"
+        }
+      },
+      "/api/message/sms/get-dispatch-status": {
+        "post": {
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "dispatch_id": {
+                      "type": "string",
+                      "description": "ID рассылки"
+                    },
+                    "user_id": {
+                      "type": "string",
+                      "description": "ID пользователя"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Dispatch status retrieved successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DispatchStatusResponse"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Отправка"
+          ],
+          "description": "Получить статус рассылки",
+          "operationId": "getDispatchStatus",
+          "summary": "Статус рассылки"
+        }
+      },
+      "/api/message/sms/get-user-messages": {
+        "post": {
+          "parameters": [
+            {
+              "description": "[пустой] - все\n\"delivered\" - только частично и полностью доставленное\n\"rejected\" - только не доставленное ",
+              "in": "query",
+              "name": "status",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": {
+                      "type": "string",
+                      "description": "1 - Если необходимо получить итог по статусу"
+                    },
+                    "is_ad": {
+                      "type": "string",
+                      "description": "[пустой] - все\n1 - только рекламное\n0 - только сервисное"
+                    },
+                    "page_size": {
+                      "type": "string",
+                      "description": "Количество SMS сообщений (с 20 до 200)"
+                    },
+                    "start_date": {
+                      "type": "string",
+                      "description": "С `%Y-%m-%d %H:%M`"
+                    },
+                    "to_date": {
+                      "type": "string",
+                      "description": "По `%Y-%m-%d %H:%M`"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "User messages retrieved successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UserMessagesResponse"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Отправка"
+          ],
+          "description": "**id** - Идентификатор пользователя  \n**country_id** - Идентификатор страны, куда отправлено SMS (null - Узбекистан)  \n**smsc_id** - Идентификатор компании, отправившей SMS  \n**dispatch_id** - Идентификатор рассылки  \n**user_sms_id** - Идентификатор SMS, который отправил пользователь  \n**request_id** - Идентификатор запроса, по которому было отправлено SMS  \n**price** - Цена за каждую часть SMS (полная стоимость SMS вычисляется как price \\* parts_count)  \n**is_ad** - Рекламное SMS  \n**nick** - Никнейм  \n**to** - Номер телефона, на который отправлено SMS  \n**message** - Текст SMS  \n**encoding** - Способ кодирования SMS (0 - GSM 0338, 1 - ASCII, 8 - UCS2)  \n**parts_count** - Количество частей SMS (зависит от типа кодировки)  \n**parts**: - Информация о частях SMS\n\n- **\\[MSG_ID\\]**: Идентификатор SMS, полученный от компании\n    \n    - **part_index** - Порядковый номер каждой части SMS\n        \n    - **accepted** - true или false\n        \n    - **accept_time** - Время отправки SMS\n        \n    - **accept_status** - Состояние SMS, полученной от компании (значение SubmitSMResp.CommandStatus)\n        \n    - **dlr_state** - Статус доставленного SMS\n        \n    - **dlr_time** - Время доставки SMS\n        \n\n**status** - Общее состояние SMS  \n**smsc_data** - Изменение состояния для каждой части  \n**sent_at** - Время, когда система Eskiz.uz приняла SMS  \n**submit_sm_resp_at** - Время отправки последней части SMS компании  \n**delivery_sm_at** - Время доставки последней части SMS пользователю  \n**created_at** - Дата создания записи  \n**updated_at** - Дата последнего изменения записи",
+          "operationId": "getUserMessages",
+          "summary": "Детализация"
+        }
+      },
+      "/api/message/sms/get-user-messages-by-dispatch": {
+        "post": {
+          "parameters": [
+            {
+              "description": "[пустой] - все\n\"delivered\" - только частично и полностью доставленное\n\"rejected\" - только не доставленное ",
+              "in": "query",
+              "name": "status",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "count": {
+                      "type": "string",
+                      "description": "1 - Если необходимо получить итог по статусу"
+                    },
+                    "dispatch_id": {
+                      "type": "string",
+                      "description": "ID рассылки"
+                    },
+                    "is_ad": {
+                      "type": "string",
+                      "description": "[пустой] - все\n1 - только рекламное\n0 - только сервисное"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "User messages by dispatch retrieved successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UserMessagesResponse"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Отправка"
+          ],
+          "description": "Получить все отправленные СМС по ID рассылке",
+          "operationId": "getUserMessagesByDispatch",
+          "summary": "Получить СМС по рассылке"
+        }
+      },
+      "/api/message/sms/normalizer": {
+        "post": {
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "description": "Сообщение"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "SMS normalization result",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/NormalizeSmsResponse"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Отправка"
+          ],
+          "description": "Этот API предоставляет информацию о наличии специальных символов в SMS-сообщении, а также о том, какими символами можно заменить специальные символы.\n\nИспользуя этот API, вы можете отправлять свои SMS дешевле.",
+          "operationId": "normalizeSms",
+          "summary": "Нормализации SMS"
+        }
+      },
+      "/api/message/sms/send": {
+        "post": {
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "callback_url": {
+                      "type": "string",
+                      "description": "Это необязательное поле, которое используется для автоматического\nполучения смс-статуса с сервера. Укажите URL-адрес обратного вызова, по\nкоторому вы будете получать данные POST в следующем формате:\n`{\"request_id\": \"UUID\", \"message_id\": \"4385062\", \"user_sms_id\": \"vash_ID_zdes\", \"country\": \"UZ\", \"phone_number\": \"998991234567\", \"sms_count\": \"1\", \"status\" : \"DELIVRD\", \"status_date\": \"2021-04-02 00:39:36\"}`. \n\nrequest_id — это значение, возвращаемое в поле \"id\" в результате выполнения API запросов send, send-batch и send-global."
+                    },
+                    "from": {
+                      "type": "string",
+                      "description": "Для того, чтобы использовать никнейм, вам нужно поменять 4546 на свои."
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Сообщение"
+                    },
+                    "mobile_phone": {
+                      "type": "string",
+                      "description": "Номер телефона"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "SMS sent successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SendSmsResponse"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Отправка"
+          ],
+          "description": "Для того, чтобы использовать никнейм, вам нужно поменять поле «FROM» на свои.\n\n**callback_url** - Это необязательное поле, которое используется для автоматического получения смс-статуса с сервера. Укажите URL-адрес обратного вызова, по которому вы будете получать данные POST в следующем формате:\n\n**{\"request_id\": \"UUID\", \"message_id\": \"4385062\", \"user_sms_id\": \"vash_ID_zdes\", \"country\": \"UZ\", \"phone_number\": \"998991234567\", \"sms_count\": \"1\", \"status\" : \"DELIVRD\", \"status_date\": \"2021-04-02 00:39:36\"}**\n\n`request_id` — это значение, возвращаемое в поле \"id\" в результате выполнения API запросов send, send-batch и send-global.",
+          "operationId": "sendSms",
+          "summary": "Отправить СМС"
+        }
+      },
+      "/api/message/sms/send-batch": {
+        "post": {
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "callback_url": {
+                      "type": "string",
+                      "example": ""
+                    },
+                    "dispatch_id": {
+                      "type": "number",
+                      "example": 123
+                    },
+                    "from": {
+                      "type": "string",
+                      "example": "4546"
+                    },
+                    "messages": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "text": {
+                            "type": "string",
+                            "example": "eto test"
+                          },
+                          "to": {
+                            "type": "number",
+                            "example": 998990000000
+                          },
+                          "user_sms_id": {
+                            "type": "string",
+                            "example": "sms1"
+                          }
+                        }
+                      },
+                      "example": [
+                        {
+                          "text": "eto test",
+                          "to": 998990000000,
+                          "user_sms_id": "sms1"
+                        },
+                        {
+                          "text": "eto test 2",
+                          "to": 998980000000,
+                          "user_sms_id": "sms2"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "SMS batch sent successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SendSmsBatchResponse"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Отправка"
+          ],
+          "description": "Отправить СМС рассылка",
+          "operationId": "sendSmsBatch",
+          "summary": "Отправить СМС рассылка"
+        }
+      },
+      "/api/message/sms/send-global": {
+        "post": {
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "callback_url": {
+                      "type": "string",
+                      "description": "Это необязательное поле, которое используется для автоматического\nполучения смс-статуса с сервера. Укажите URL-адрес обратного вызова, по\nкоторому вы будете получать данные POST в следующем формате:\n`{\"request_id\": \"UUID\", \"message_id\": \"4385062\", \"user_sms_id\": \"vash_ID_zdes\", \"country\": \"UZ\", \"phone_number\": \"998991234567\", \"sms_count\": \"1\", \"status\" : \"DELIVRD\", \"status_date\": \"2021-04-02 00:39:36\"}`\n\nrequest_id — это значение, возвращаемое в поле \"id\" в результате выполнения API запросов send, send-batch и send-global."
+                    },
+                    "country_code": {
+                      "type": "string",
+                      "description": "Страна"
+                    },
+                    "message": {
+                      "type": "string",
+                      "description": "Сообщение"
+                    },
+                    "mobile_phone": {
+                      "type": "string",
+                      "description": "Номер телефона"
+                    },
+                    "unicode": {
+                      "type": "string",
+                      "description": "1 - если хотите отправить на кирилице"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Global SMS sent successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SendSmsResponse"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Отправка"
+          ],
+          "description": "Используя этот API вы можете отправить СМС зарубежных стран мира.\n\n**callback_url** - Это необязательное поле, которое используется для автоматического получения смс-статуса с сервера. Укажите URL-адрес обратного вызова, по которому вы будете получать данные POST в следующем формате: \n\n**{\"message_id\": \"4385062\", \"country\": \"US\", \"phone_number\": \"1234567891011\", \"sms_count\": \"1\", \"status\" : \"DELIVRD\", \"status_date\": \"2021-04-02 00:39:36\"}**",
+          "operationId": "sendSmsGlobal",
+          "summary": "Отправить Международный СМС"
+        }
+      },
+      "/api/message/sms/status_by_id/{id}": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "get": {
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "SMS status retrieved successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SmsStatusResponse"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Отчеты"
+          ],
+          "description": "Если :id INT - это ID SMS на платформе Eskiz\n\nЕсли :id UUID - это id, полученный в результате вызова API send, send-batch и send-global, или столбец request_id в результатах остальных API.",
+          "operationId": "getSmsStatusById",
+          "summary": "Получить статус по ID"
+        }
+      },
+      "/api/nick/me": {
+        "get": {
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "Nicknames retrieved successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/NicknamesResponse"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Отправка"
+          ],
+          "description": "Получить список ник",
+          "operationId": "getNicknames",
+          "summary": "Получить список ник"
+        }
+      },
+      "/api/report/total-by-dispatch": {
+        "post": {
+          "parameters": [
+            {
+              "description": "[пустой] - все\n\"delivered\" - только частично и полностью доставленное\n\"rejected\" - только не доставленное ",
+              "in": "query",
+              "name": "status",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "dispatch_id": {
+                      "type": "string",
+                      "description": "ID рассылки"
+                    },
+                    "is_ad": {
+                      "type": "string",
+                      "description": "[пустой] - все\n1 - только рекламное\n0 - только сервисное"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Total by dispatch retrieved successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UserTotalsResponse"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Отчеты"
+          ],
+          "description": "Расходы по рассылке",
+          "operationId": "getTotalByDispatch",
+          "summary": "Расходы по рассылке"
+        }
+      },
+      "/api/report/total-by-month": {
+        "get": {
+          "parameters": [
+            {
+              "description": "Год",
+              "in": "query",
+              "name": "year",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Total by month retrieved successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/TotalByMonthResponse"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Отчеты"
+          ],
+          "description": "**ad_parts** - Количество рекламных СМС  \n**ad_spent** - Расходы на рекламные СМС\n\n**parts** - Количество сервисных СМС  \n**spent** - Расходы на сервисные СМС",
+          "operationId": "getTotalByMonth",
+          "summary": "Итого по месяцам"
+        }
+      },
+      "/api/report/total-by-range": {
+        "post": {
+          "parameters": [
+            {
+              "description": "[пустой] - все\n\"delivered\" - только частично и полностью доставленное\n\"rejected\" - только не доставленное ",
+              "in": "query",
+              "name": "status",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "is_ad": {
+                      "type": "string",
+                      "description": "[пустой] - все\n1 - только рекламное\n0 - только сервисное"
+                    },
+                    "start_date": {
+                      "type": "string",
+                      "description": "С `%Y-%m-%d %H:%M`"
+                    },
+                    "to_date": {
+                      "type": "string",
+                      "description": "По `%Y-%m-%d %H:%M`"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Total by date range retrieved successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UserTotalsResponse"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Отчеты"
+          ],
+          "description": "Расходы по датам",
+          "operationId": "getTotalByRange",
+          "summary": "Расходы по датам"
+        }
+      },
+      "/api/user/get-limit": {
+        "get": {
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "User balance retrieved successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UserLimitResponse"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Отчеты"
+          ],
+          "description": "Получить баланс",
+          "operationId": "getUserLimit",
+          "summary": "Получить баланс"
+        }
+      },
+      "/api/user/template": {
+        "post": {
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "template": {
+                      "type": "string",
+                      "description": "шаблон или текс сообщение"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Template sent successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SendTemplateResponse"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Шаблоны"
+          ],
+          "description": "Получить шаблон по ID",
+          "operationId": "sendTemplate",
+          "summary": "Отправить шаблон"
+        }
+      },
+      "/api/user/templates": {
+        "get": {
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "Templates retrieved successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/TemplatesListResponse"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Шаблоны"
+          ],
+          "description": "Получить все шаблоны\n\nstatus:  \nmoderation => На модерации  \ninproccess => В процессе  \nservice => Сервисный  \nreklama => Рекламный  \nrejected => Отказано",
+          "operationId": "getUserTemplates",
+          "summary": "Получить список шаблонов"
+        }
+      },
+      "/api/user/totals": {
+        "post": {
+          "requestBody": {
+            "content": {
+              "application/x-www-form-urlencoded": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "is_global": {
+                      "type": "string"
+                    },
+                    "month": {
+                      "type": "string"
+                    },
+                    "year": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "User totals retrieved successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UserTotalsResponse"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Отчеты"
+          ],
+          "description": "Итого отправленных СМС",
+          "operationId": "getUserTotals",
+          "summary": "Итог отправленных СМС"
+        }
+      }
+    },
+    "tags": [
+      {
+        "description": "**Срок токена** - 30 дней\n\nЕсли Вы новый пользователь, пройдите регистрацию по [https://eskiz.uz/sms](https://eskiz.uz/sms) и получите логин и пароль, если же у Вас есть свой логин и пароль, то используйте его",
+        "name": "Авторизация"
+      },
+      {
+        "name": "Шаблоны"
+      },
+      {
+        "description": "_**СТАТУС СООБЩЕНИЕЯ**_\n\n**NEW** - СМС в ожидании отправления оператору  \n**STORED** - Отправляется только через CALLBACK_URL и означает, что SMS уже записано в базу данных.  \n**ACCEPTED** - Минимум одна часть SMS передана сотовому оператору, но со стороны оператора не получен обратный статус SMS сообщения;  \n**PARTDELIVERED -** Минимум одна часть SMS доставлено;  \n**DELIVERED** - доставлено;  \n**REJECTED -** один из основных причин это то что номер находится в черном списке;\n\n_**СТАТУС КАЖДОЙ ЧАСТИ СООБЩЕНИЯ**_\n\n**NEW** - СМС в ожидании отправления оператору  \n**ACCEPTED** - СМС передан сотовому оператору, но со стороны оператора обратно не получено статус смс сообщений;  \n**DELIVRD** - доставлено;  \n**UNDELIV / UNDELIVERABLE** - недоставлено, обычно причиной может быть то что абонент блокируется со стороны оператора(недостаточно средст или долг);  \n**EXPIRED** - срок жизни смс истек(когда абонент в течение сутки не выходил на связь. У билайн если в теение часа);  \n**REJECTD** - один из основных причин это то что номер находится в черном списке;  \n**DELETED** - ошибка при отправки запроса(например когда адрес отправителя указан неверно);  \n**UNKNOWN** - Неопределенный статус  \n**ENROUTE** - Неопределенный статус в процессе отправки",
+        "name": "Отправка"
+      },
+      {
+        "name": "Отчеты"
+      }
+    ],
+    "components": {
+      "securitySchemes": {
+        "bearerAuth": {
+          "type": "http",
+          "scheme": "bearer",
+          "bearerFormat": "JWT",
+          "description": "Bearer токен для авторизации"
+        }
+      },
+      "schemas": {
+        "LoginResponse": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string",
+              "example": "token_generated"
+            },
+            "data": {
+              "$ref": "#/components/schemas/LoginData"
+            },
+            "token_type": {
+              "type": "string",
+              "example": "bearer"
+            }
+          }
+        },
+        "LoginData": {
+          "type": "object",
+          "properties": {
+            "token": {
+              "type": "string",
+              "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NTQ2NzY1NDEsImlhdCI6MTc1MjA4NDU0MSwicm9sZSI6InVzZXIiLCJzaWduIjoiM2JmYmFhY2NmODc3MDc4OTgzM2I3YTllZWEwMGVjY2MzYTUzMzUwNDI1MDk2MGU5OTQyNDY0YmFkYmQ2MDIwMyIsInN1YiI6IjExNjI1In0.1NotN0j4fw83TJRf-YkK0QtJ1tY0dnWbWM0O4nhHI_I"
+            }
+          }
+        },
+        "RefreshTokenResponse": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string",
+              "example": "token_generated"
+            },
+            "data": {
+              "$ref": "#/components/schemas/LoginData"
+            },
+            "token_type": {
+              "type": "string",
+              "example": "bearer"
+            }
+          }
+        },
+        "UserInfoResponse": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "example": "success"
+            },
+            "data": {
+              "$ref": "#/components/schemas/UserInfo"
+            },
+            "id": {
+              "type": "string",
+              "nullable": true,
+              "example": null
+            }
+          }
+        },
+        "UserInfo": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "example": 378
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2020-10-14T18:27:03Z"
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2023-11-03T20:09:31.527361Z"
+            },
+            "name": {
+              "type": "string",
+              "example": "Name"
+            },
+            "email": {
+              "type": "string",
+              "example": "vash@email.uz"
+            },
+            "password": {
+              "type": "string",
+              "example": ""
+            },
+            "role": {
+              "type": "string",
+              "example": "user"
+            },
+            "status": {
+              "type": "string",
+              "example": "active"
+            },
+            "is_vip": {
+              "type": "boolean",
+              "example": false
+            },
+            "balance": {
+              "type": "number",
+              "example": 0
+            }
+          }
+        },
+        "SendTemplateResponse": {
+          "type": "object",
+          "properties": {
+            "template": {
+              "type": "string",
+              "example": "шаблон или текс сообщение"
+            }
+          }
+        },
+        "TemplatesListResponse": {
+          "type": "object",
+          "properties": {
+            "success": {
+              "type": "boolean",
+              "example": true
+            },
+            "result": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/TemplateItem"
+              }
+            }
+          }
+        },
+        "TemplateItem": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "example": 1
+            },
+            "template": {
+              "type": "string",
+              "example": ""
+            },
+            "original_text": {
+              "type": "string",
+              "example": "Eskiz API test 2"
+            },
+            "status": {
+              "type": "string",
+              "example": "moderation"
+            }
+          }
+        },
+        "SendSmsResponse": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "example": "59bf10a2-aba8-4694-8fd5-0be20102a580"
+            },
+            "message": {
+              "type": "string",
+              "example": "Waiting for SMS provider"
+            },
+            "status": {
+              "type": "string",
+              "example": "waiting"
+            }
+          }
+        },
+        "SendSmsBatchResponse": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "example": "03759b6d-c4db-449f-81c1-f625ab1bc1b4"
+            },
+            "message": {
+              "type": "string",
+              "example": "Waiting for SMS provider"
+            },
+            "status": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "example": ["waiting", "waiting"]
+            }
+          }
+        },
+        "UserMessagesResponse": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "$ref": "#/components/schemas/PaginationData"
+            },
+            "status": {
+              "type": "string",
+              "example": "success"
+            }
+          }
+        },
+        "PaginationData": {
+          "type": "object",
+          "properties": {
+            "current_page": {
+              "type": "integer",
+              "example": 1
+            },
+            "path": {
+              "type": "string",
+              "example": "https://notify.eskiz.uz/api/message/sms/get-user-messages"
+            },
+            "prev_page_url": {
+              "type": "string",
+              "nullable": true,
+              "example": null
+            },
+            "first_page_url": {
+              "type": "string",
+              "example": "https://notify.eskiz.uz/api/message/sms/get-user-messages?page=1"
+            },
+            "last_page_url": {
+              "type": "string",
+              "example": "https://notify.eskiz.uz/api/message/sms/get-user-messages?page=1"
+            },
+            "next_page_url": {
+              "type": "string",
+              "nullable": true,
+              "example": null
+            },
+            "per_page": {
+              "type": "integer",
+              "example": 20
+            },
+            "last_page": {
+              "type": "integer",
+              "example": 1
+            },
+            "from": {
+              "type": "integer",
+              "example": 1
+            },
+            "to": {
+              "type": "integer",
+              "example": 20
+            },
+            "total": {
+              "type": "integer",
+              "example": 4
+            },
+            "result": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/MessageItem"
+              }
+            },
+            "links": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/LinkItem"
+              }
+            }
+          }
+        },
+        "MessageItem": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "example": 16
+            },
+            "user_id": {
+              "type": "integer",
+              "example": 378
+            },
+            "country_id": {
+              "type": "integer",
+              "nullable": true,
+              "example": null
+            },
+            "connection_id": {
+              "type": "integer",
+              "example": 1
+            },
+            "smsc_id": {
+              "type": "integer",
+              "example": 1
+            },
+            "dispatch_id": {
+              "type": "integer",
+              "nullable": true,
+              "example": null
+            },
+            "user_sms_id": {
+              "type": "string",
+              "example": "hiha124"
+            },
+            "request_id": {
+              "type": "string",
+              "example": "7fc5c514-aa30-4adc-9b80-2956d612fb4c"
+            },
+            "price": {
+              "type": "number",
+              "example": 50
+            },
+            "is_ad": {
+              "type": "boolean",
+              "example": true
+            },
+            "nick": {
+              "type": "string",
+              "example": "4546"
+            },
+            "to": {
+              "type": "string",
+              "example": "Номер телефона"
+            },
+            "message": {
+              "type": "string",
+              "example": "Eskiz test"
+            },
+            "encoding": {
+              "type": "integer",
+              "example": 1
+            },
+            "parts_count": {
+              "type": "integer",
+              "example": 1
+            },
+            "parts": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/components/schemas/MessagePart"
+              }
+            },
+            "status": {
+              "type": "string",
+              "example": "DELIVERED"
+            },
+            "smsc_data": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "sent_at": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2023-11-02T00:40:32Z"
+            },
+            "submit_sm_resp_at": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2023-11-02T00:40:34.606121Z"
+            },
+            "delivery_sm_at": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2023-11-02T00:40:38.619241Z"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2023-11-02T00:40:34.563038Z"
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2023-11-02T00:40:40.566277Z"
+            }
+          }
+        },
+        "MessagePart": {
+          "type": "object",
+          "properties": {
+            "accept": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2023-11-02T00:40:34.606121+05:00"
+            },
+            "status": {
+              "type": "string",
+              "example": "DELIVRD"
+            },
+            "submit": {
+              "type": "integer",
+              "example": 0
+            },
+            "delivery": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2023-11-02T00:40:38.619241+05:00"
+            }
+          }
+        },
+        "LinkItem": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string",
+              "nullable": true,
+              "example": null
+            },
+            "label": {
+              "type": "string",
+              "example": "&laquo; Previous"
+            },
+            "active": {
+              "type": "boolean",
+              "example": false
+            }
+          }
+        },
+        "DispatchStatusResponse": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "example": "success"
+            },
+            "data": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/StatusCount"
+              }
+            },
+            "id": {
+              "type": "string",
+              "nullable": true,
+              "example": null
+            }
+          }
+        },
+        "StatusCount": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "example": "DELIVERED"
+            },
+            "total": {
+              "type": "integer",
+              "example": 18
+            }
+          }
+        },
+        "NicknamesResponse": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": ["Eskiz.uz"]
+        },
+        "NormalizeSmsResponse": {
+          "type": "object",
+          "properties": {
+            "special_characters": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/SpecialCharacter"
+              }
+            },
+            "recommendations": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Recommendation"
+              }
+            },
+            "message": {
+              "type": "string",
+              "example": "Sms xabar narxi EU100 : Xitoy tili Shi Jie  : Dza[?]om Eskiz : Privet Eskiz"
+            }
+          }
+        },
+        "SpecialCharacter": {
+          "type": "object",
+          "properties": {
+            "position": {
+              "type": "integer",
+              "example": 16
+            },
+            "code": {
+              "type": "string",
+              "example": "0x20AC"
+            },
+            "char": {
+              "type": "string",
+              "example": "€"
+            }
+          }
+        },
+        "Recommendation": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "example": "€"
+            },
+            "to": {
+              "type": "string",
+              "example": "EU"
+            }
+          }
+        },
+        "UserTotalsResponse": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "example": "success"
+            },
+            "data": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/UserTotalsItem"
+              }
+            },
+            "id": {
+              "type": "string",
+              "nullable": true,
+              "example": null
+            }
+          }
+        },
+        "UserTotalsItem": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "example": "DELIVERED"
+            },
+            "month": {
+              "type": "string",
+              "example": "Nov"
+            },
+            "packets": {
+              "type": "integer",
+              "example": 3
+            }
+          }
+        },
+        "UserLimitResponse": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "$ref": "#/components/schemas/UserBalance"
+            },
+            "status": {
+              "type": "string",
+              "example": "success"
+            }
+          }
+        },
+        "UserBalance": {
+          "type": "object",
+          "properties": {
+            "balance": {
+              "type": "number",
+              "example": 0
+            }
+          }
+        },
+        "TotalByMonthResponse": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/MonthlyReportItem"
+              }
+            }
+          }
+        },
+        "MonthlyReportItem": {
+          "type": "object",
+          "properties": {
+            "year": {
+              "type": "integer",
+              "example": 2024
+            },
+            "month": {
+              "type": "integer",
+              "example": 2
+            },
+            "ad_parts": {
+              "type": "integer",
+              "example": 14
+            },
+            "ad_spent": {
+              "type": "number",
+              "example": 1610
+            },
+            "parts": {
+              "type": "integer",
+              "example": 409
+            },
+            "spent": {
+              "type": "number",
+              "example": 22594
+            },
+            "total_parts": {
+              "type": "integer",
+              "example": 423
+            },
+            "total_spent": {
+              "type": "number",
+              "example": 24204
+            }
+          }
+        },
+        "TotalBySmscResponse": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/SmscReportItem"
+              }
+            }
+          }
+        },
+        "SmscReportItem": {
+          "type": "object",
+          "properties": {
+            "year": {
+              "type": "integer",
+              "example": 2024
+            },
+            "month": {
+              "type": "integer",
+              "example": 1
+            },
+            "ad_parts": {
+              "type": "integer",
+              "example": 0
+            },
+            "ad_spent": {
+              "type": "number",
+              "example": 0
+            },
+            "parts": {
+              "type": "integer",
+              "example": 9
+            },
+            "spent": {
+              "type": "number",
+              "example": 450
+            },
+            "total_parts": {
+              "type": "integer",
+              "example": 9
+            },
+            "total_spent": {
+              "type": "number",
+              "example": 450
+            },
+            "smsc_id": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        },
+        "SmsLogsResponse": {
+          "type": "object",
+          "properties": {
+            "messages": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/LogMessage"
+              }
+            },
+            "messages_count": {
+              "type": "integer",
+              "example": 22
+            }
+          }
+        },
+        "LogMessage": {
+          "type": "object",
+          "properties": {
+            "ip": {
+              "type": "string",
+              "example": "127.0.0.1"
+            },
+            "from": {
+              "type": "string",
+              "example": "4546"
+            },
+            "to": {
+              "type": "string",
+              "example": "99899*******"
+            },
+            "dispatch_id": {
+              "type": "string",
+              "example": "<nil>"
+            },
+            "user_sms_id": {
+              "type": "string",
+              "example": "test-sms-1"
+            },
+            "timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-02-27T11:30:28.066Z"
+            },
+            "message": {
+              "type": "string",
+              "example": "CallbackURL bo'sh"
+            },
+            "full_message": {
+              "type": "string",
+              "example": ""
+            },
+            "level_name": {
+              "type": "string",
+              "example": "WARN"
+            }
+          }
+        },
+        "SmsStatusResponse": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "example": "success"
+            },
+            "data": {
+              "$ref": "#/components/schemas/SmsStatusData"
+            },
+            "id": {
+              "type": "string",
+              "nullable": true,
+              "example": null
+            }
+          }
+        },
+        "SmsStatusData": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "example": 61359094
+            },
+            "user_id": {
+              "type": "integer",
+              "example": 0
+            },
+            "country_id": {
+              "type": "integer",
+              "example": 83
+            },
+            "connection_id": {
+              "type": "integer",
+              "example": 8
+            },
+            "smsc_id": {
+              "type": "integer",
+              "example": 8
+            },
+            "dispatch_id": {
+              "type": "string",
+              "nullable": true,
+              "example": null
+            },
+            "user_sms_id": {
+              "type": "string",
+              "nullable": true,
+              "example": null
+            },
+            "request_id": {
+              "type": "string",
+              "example": "b169553b-de29-4649-b5dd-cfafd85984f9"
+            },
+            "price": {
+              "type": "number",
+              "example": 0
+            },
+            "total_price": {
+              "type": "number",
+              "example": 0
+            },
+            "is_ad": {
+              "type": "boolean",
+              "example": false
+            },
+            "nick": {
+              "type": "string",
+              "example": "from"
+            },
+            "to": {
+              "type": "string",
+              "example": "to"
+            },
+            "message": {
+              "type": "string",
+              "example": "Test"
+            },
+            "encoding": {
+              "type": "integer",
+              "example": 1
+            },
+            "parts_count": {
+              "type": "integer",
+              "example": 1
+            },
+            "parts": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/components/schemas/SmsStatusPart"
+              }
+            },
+            "status": {
+              "type": "string",
+              "example": "DELIVERED"
+            },
+            "smsc_data": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "sent_at": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-05-31T22:02:27Z"
+            },
+            "submit_sm_resp_at": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-05-31T22:02:28.672497Z"
+            },
+            "delivery_sm_at": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-05-31T22:02:32Z"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-05-31T22:02:27.954Z"
+            },
+            "updated_at": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-05-31T22:02:33.065096Z"
+            }
+          }
+        },
+        "SmsStatusPart": {
+          "type": "object",
+          "properties": {
+            "group": {
+              "type": "integer",
+              "example": 457
+            },
+            "accepted": {
+              "type": "boolean",
+              "example": true
+            },
+            "dlr_time": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-05-31T22:02:32+05:00"
+            },
+            "dlr_state": {
+              "type": "string",
+              "example": "DELIVRD"
+            },
+            "part_index": {
+              "type": "integer",
+              "example": 0
+            },
+            "accept_time": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2024-05-31T22:02:28.672497042+05:00"
+            },
+            "accept_status": {
+              "type": "integer",
+              "example": 0
+            }
+          }
+        }
+      }
+    }
+  }
