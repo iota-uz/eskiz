@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	eskizapiclient "github.com/iota-uz/eskiz/eskizapi"
+	eskizapiclient "github.com/iota-uz/eskiz"
 	"github.com/stretchr/testify/require"
 )
 

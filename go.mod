@@ -1,4 +1,4 @@
-module github.com/iota-uz/eskiz/eskizapi
+module github.com/iota-uz/eskiz
 
 go 1.18
 

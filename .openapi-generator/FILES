@@ -42,7 +42,6 @@ docs/UserMessagesResponse.md
 docs/UserTotalsItem.md
 docs/UserTotalsResponse.md
 git_push.sh
-go.mod
 go.sum
 model_dispatch_status_response.go
 model_link_item.go
