@@ -9,7 +9,7 @@ Name | Type | Description | Notes
 **CountryId** | Pointer to **NullableInt** |  | [optional] 
 **ConnectionId** | Pointer to **int** |  | [optional] 
 **SmscId** | Pointer to **int** |  | [optional] 
-**DispatchId** | Pointer to **NullableInt** |  | [optional] 
+**DispatchId** | Pointer to **NullableString** |  | [optional] 
 **UserSmsId** | Pointer to **string** |  | [optional] 
 **RequestId** | Pointer to **string** |  | [optional] 
 **Price** | Pointer to **float64** |  | [optional] 
@@ -184,20 +184,20 @@ HasSmscId returns a boolean if a field has been set.
 
 ### GetDispatchId
 
-`func (o *MessageItem) GetDispatchId() int`
+`func (o *MessageItem) GetDispatchId() string`
 
 GetDispatchId returns the DispatchId field if non-nil, zero value otherwise.
 
 ### GetDispatchIdOk
 
-`func (o *MessageItem) GetDispatchIdOk() (*int, bool)`
+`func (o *MessageItem) GetDispatchIdOk() (*string, bool)`
 
 GetDispatchIdOk returns a tuple with the DispatchId field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
 ### SetDispatchId
 
-`func (o *MessageItem) SetDispatchId(v int)`
+`func (o *MessageItem) SetDispatchId(v string)`
 
 SetDispatchId sets DispatchId field to given value.
 

@@ -5,7 +5,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **CallbackUrl** | Pointer to **string** |  | [optional] 
-**DispatchId** | Pointer to **float64** |  | [optional] 
+**DispatchId** | Pointer to **int** |  | [optional] 
 **From** | Pointer to **string** |  | [optional] 
 **Messages** | Pointer to [**[]SendSmsBatchRequestMessagesInner**](SendSmsBatchRequestMessagesInner.md) |  | [optional] 
 
@@ -55,20 +55,20 @@ HasCallbackUrl returns a boolean if a field has been set.
 
 ### GetDispatchId
 
-`func (o *SendSmsBatchRequest) GetDispatchId() float64`
+`func (o *SendSmsBatchRequest) GetDispatchId() int`
 
 GetDispatchId returns the DispatchId field if non-nil, zero value otherwise.
 
 ### GetDispatchIdOk
 
-`func (o *SendSmsBatchRequest) GetDispatchIdOk() (*float64, bool)`
+`func (o *SendSmsBatchRequest) GetDispatchIdOk() (*int, bool)`
 
 GetDispatchIdOk returns a tuple with the DispatchId field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
 ### SetDispatchId
 
-`func (o *SendSmsBatchRequest) SetDispatchId(v float64)`
+`func (o *SendSmsBatchRequest) SetDispatchId(v int)`
 
 SetDispatchId sets DispatchId field to given value.
 

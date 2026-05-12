@@ -501,7 +501,7 @@
                       "example": ""
                     },
                     "dispatch_id": {
-                      "type": "number",
+                      "type": "integer",
                       "example": 123
                     },
                     "from": {
@@ -1251,7 +1251,7 @@
               "example": 1
             },
             "dispatch_id": {
-              "type": "integer",
+              "type": "string",
               "nullable": true,
               "example": null
             },

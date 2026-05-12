@@ -26,7 +26,7 @@ type MessageItem struct {
 	CountryId      NullableInt             `form:"country_id" json:"country_id,omitempty"`
 	ConnectionId   *int                    `form:"connection_id" json:"connection_id,omitempty"`
 	SmscId         *int                    `form:"smsc_id" json:"smsc_id,omitempty"`
-	DispatchId     NullableInt             `form:"dispatch_id" json:"dispatch_id,omitempty"`
+	DispatchId     NullableString          `form:"dispatch_id" json:"dispatch_id,omitempty"`
 	UserSmsId      *string                 `form:"user_sms_id" json:"user_sms_id,omitempty"`
 	RequestId      *string                 `form:"request_id" json:"request_id,omitempty"`
 	Price          *float64                `form:"price" json:"price,omitempty"`
@@ -235,9 +235,9 @@ func (o *MessageItem) SetSmscId(v int) {
 }
 
 // GetDispatchId returns the DispatchId field value if set, zero value otherwise (both if not set or set to explicit null).
-func (o *MessageItem) GetDispatchId() int {
+func (o *MessageItem) GetDispatchId() string {
 	if o == nil || IsNil(o.DispatchId.Get()) {
-		var ret int
+		var ret string
 		return ret
 	}
 	return *o.DispatchId.Get()
@@ -246,7 +246,7 @@ func (o *MessageItem) GetDispatchId() int {
 // GetDispatchIdOk returns a tuple with the DispatchId field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 // NOTE: If the value is an explicit nil, `nil, true` will be returned
-func (o *MessageItem) GetDispatchIdOk() (*int, bool) {
+func (o *MessageItem) GetDispatchIdOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -262,8 +262,8 @@ func (o *MessageItem) HasDispatchId() bool {
 	return false
 }
 
-// SetDispatchId gets a reference to the given NullableInt and assigns it to the DispatchId field.
-func (o *MessageItem) SetDispatchId(v int) {
+// SetDispatchId gets a reference to the given NullableString and assigns it to the DispatchId field.
+func (o *MessageItem) SetDispatchId(v string) {
 	o.DispatchId.Set(&v)
 }
 

@@ -21,7 +21,7 @@ var _ MappedNullable = &SendSmsBatchRequest{}
 // SendSmsBatchRequest struct for SendSmsBatchRequest
 type SendSmsBatchRequest struct {
 	CallbackUrl *string                            `form:"callback_url" json:"callback_url,omitempty"`
-	DispatchId  *float64                           `form:"dispatch_id" json:"dispatch_id,omitempty"`
+	DispatchId  *int                               `form:"dispatch_id" json:"dispatch_id,omitempty"`
 	From        *string                            `form:"from" json:"from,omitempty"`
 	Messages    []SendSmsBatchRequestMessagesInner `form:"messages" json:"messages,omitempty"`
 }
@@ -76,9 +76,9 @@ func (o *SendSmsBatchRequest) SetCallbackUrl(v string) {
 }
 
 // GetDispatchId returns the DispatchId field value if set, zero value otherwise.
-func (o *SendSmsBatchRequest) GetDispatchId() float64 {
+func (o *SendSmsBatchRequest) GetDispatchId() int {
 	if o == nil || IsNil(o.DispatchId) {
-		var ret float64
+		var ret int
 		return ret
 	}
 	return *o.DispatchId
@@ -86,7 +86,7 @@ func (o *SendSmsBatchRequest) GetDispatchId() float64 {
 
 // GetDispatchIdOk returns a tuple with the DispatchId field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *SendSmsBatchRequest) GetDispatchIdOk() (*float64, bool) {
+func (o *SendSmsBatchRequest) GetDispatchIdOk() (*int, bool) {
 	if o == nil || IsNil(o.DispatchId) {
 		return nil, false
 	}
@@ -102,8 +102,8 @@ func (o *SendSmsBatchRequest) HasDispatchId() bool {
 	return false
 }
 
-// SetDispatchId gets a reference to the given float64 and assigns it to the DispatchId field.
-func (o *SendSmsBatchRequest) SetDispatchId(v float64) {
+// SetDispatchId gets a reference to the given int and assigns it to the DispatchId field.
+func (o *SendSmsBatchRequest) SetDispatchId(v int) {
 	o.DispatchId = &v
 }
 
